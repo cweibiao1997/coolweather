@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.example.coolweather.db.City;
 import com.example.coolweather.db.Country;
 import com.example.coolweather.db.Province;
+import com.example.coolweather.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,8 +55,10 @@ public class Utility {
     public static boolean handleCountryResponse(String response,int cityId){
         if(!TextUtils.isEmpty(response)){
             try{
+                //服务器中定义的是一个JSON数组，将其传入到JSONArray对象中
                 JSONArray allCountries=new JSONArray(response);
                 for(int i=0;i<allCountries.length();i++){
+                    //从数组中取出的每一个元素都是一个JSONObject对象
                     JSONObject countryObject=allCountries.getJSONObject(i);
                     Country country=new Country();
                     country.setCountryName(countryObject.getString("name"));
@@ -68,5 +72,17 @@ public class Utility {
             }
         }
         return  false;
+    }
+    //将返回JSON数据解析成Weather实体类
+    public static Weather handleWeatherResponse(String response){
+        try{
+            JSONObject jsonObject=new JSONObject(response);
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
+            String weatherContent=jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent, Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
